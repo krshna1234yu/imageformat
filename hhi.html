@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Capture and Styles</title>
+    <style>
+       body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.photo-container {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+.photo-container img {
+    width: 150px; /* Adjust size as needed */
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #333;
+    margin: 5px;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes move {
+    0% {
+        transform: translateX(-150px);
+    }
+    100% {
+        transform: translateX(calc(100vw + 150px));
+    }
+}
+
+@keyframes cycleStyles {
+    0% { filter: grayscale(100%); }
+    10% { filter: sepia(100%); }
+    20% { filter: invert(100%); }
+    30% { filter: blur(5px); }
+    40% { border: 10px solid red; transform: scale(1.2); }
+    50% { border: 10px dashed green; transform: rotate(15deg); }
+    60% { border: 10px dotted blue; transform: scale(0.8); }
+    70% { border: 10px double purple; filter: brightness(50%); }
+    80% { filter: contrast(200%); }
+    90% { filter: hue-rotate(90deg); }
+    100% { filter: grayscale(50%); }
+}
+
+/* Additional styles */
+.style1 { filter: grayscale(100%); }
+.style2 { filter: sepia(100%); }
+.style3 { filter: invert(100%); }
+.style4 { filter: blur(5px); }
+.style5 { border: 10px solid red; transform: scale(1.2); }
+.style6 { border: 10px dashed green; transform: rotate(15deg); }
+.style7 { border: 10px dotted blue; transform: scale(0.8); }
+.style8 { border: 10px double purple; filter: brightness(50%); }
+.style9 { filter: contrast(200%); }
+.style10 { filter: hue-rotate(90deg); }
+.style11 { filter: grayscale(50%); }
+.style12 { filter: sepia(50%); }
+.style13 { filter: invert(50%); }
+.style14 { filter: blur(10px); }
+.style15 { border: 10px solid orange; transform: scale(1.5); }
+.style16 { border: 10px dashed yellow; transform: rotate(-15deg); }
+.style17 { border: 10px dotted cyan; transform: scale(0.7); }
+.style18 { border: 10px double magenta; filter: brightness(70%); }
+.style19 { filter: contrast(150%); }
+.style20 { filter: hue-rotate(180deg); }
+.style21 { filter: opacity(50%); }
+.style22 { filter: saturate(200%); }
+.style23 { filter: sepia(25%); }
+.style24 { filter: grayscale(75%); }
+.style25 { filter: brightness(120%); }
+.style26 { filter: contrast(50%); }
+.style27 { border: 10px solid pink; transform: scale(1.1) rotate(10deg); }
+.style28 { border: 10px dashed gray; transform: scale(0.9) rotate(-10deg); }
+.style29 { border: 10px dotted brown; filter: brightness(80%) contrast(120%); }
+.style30 { filter: blur(2px) brightness(150%); }
+
+#styles-container {
+    margin-top: 20px;
+}
+
+.style-btn {
+    margin: 5px;
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.style-btn:hover {
+    background-color: #0056b3;
+}
+
+#styled-images-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+}
+
+#styled-images-container img {
+    animation: cycleStyles 30s linear infinite;
+}
+
+    </style>
+</head>
+<body>
+    <h1>Capture and Display Photo in Various Styles</h1>
+    <video id="video" width="320" height="240" autoplay></video>
+    <button id="snap">Take Photo</button>
+    <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+    <div class="photo-container">
+        <img id="photo" src="" alt="Photo">
+    </div>
+    <div id="styles-container">
+        <button class="style-btn" id="apply-styles">Apply All Styles</button>
+        <button class="style-btn" id="cycle-styles">Cycle Styles</button>
+    </div>
+    <div id="styled-images-container">
+        <!-- Styled images will be appended here -->
+    </div>
+    <script>
+       document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photo = document.getElementById('photo');
+    const snap = document.getElementById('snap');
+    const context = canvas.getContext('2d');
+    const stylesContainer = document.getElementById('styled-images-container');
+    const applyStylesButton = document.getElementById('apply-styles');
+    const cycleStylesButton = document.getElementById('cycle-styles');
+
+    const styles = [
+        'style1', 'style2', 'style3', 'style4', 'style5',
+        'style6', 'style7', 'style8', 'style9', 'style10',
+        'style11', 'style12', 'style13', 'style14', 'style15',
+        'style16', 'style17', 'style18', 'style19', 'style20',
+        'style21', 'style22', 'style23', 'style24', 'style25',
+        'style26', 'style27', 'style28', 'style29', 'style30'
+    ];
+
+    let currentStyleIndex = 0;
+
+    // Get access to the camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(err => {
+            console.error("An error occurred: " + err);
+        });
+
+    // Take photo and display it
+    snap.addEventListener('click', () => {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/png');
+        photo.src = dataUrl;
+    });
+
+    // Apply all styles
+    applyStylesButton.addEventListener('click', () => {
+        // Clear previous styled images
+        stylesContainer.innerHTML = '';
+
+        styles.forEach(style => {
+            const img = document.createElement('img');
+            img.src = photo.src;
+            img.classList.add(style);
+            stylesContainer.appendChild(img);
+        });
+    });
+
+    // Cycle through styles
+    cycleStylesButton.addEventListener('click', () => {
+        // Clear previous styled images
+        stylesContainer.innerHTML = '';
+
+        const img = document.createElement('img');
+        img.src = photo.src;
+        img.classList.add(styles[currentStyleIndex]);
+        stylesContainer.appendChild(img);
+
+        currentStyleIndex = (currentStyleIndex + 1) % styles.length;
+    });
+});
+
+    </script>
+</body>
+</html>
